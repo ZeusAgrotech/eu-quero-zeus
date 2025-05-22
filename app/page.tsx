@@ -32,7 +32,7 @@ export default function Home() {
   }
 
   return (
-    <div className="isolate flex min-h-screen flex-col items-center justify-between p-6 lg:px-16">
+    <div className="isolate flex min-h-screen flex-col gap-6 items-center justify-between p-6 lg:px-16">
       <h1 className="font-bold text-4xl">Eu quero Zeus</h1>
 
       <div className="flex w-full max-w-md flex-col items-center gap-4 rounded-4xl bg-gradient-to-br from-stone-50 to-stone-100 p-6 shadow-[0_3px_6px_rgba(0,0,0,0.3)]">
@@ -172,7 +172,7 @@ export default function Home() {
         aria-hidden="true"
       />
       <div
-        className="-z-[2] absolute inset-0 bg-gradient-to-br from-zeus-300 to-zeus-500"
+        className="-z-[2] fixed inset-0 bg-gradient-to-br from-zeus-300 to-zeus-500"
         aria-hidden="true"
       />
     </div>
