@@ -308,39 +308,20 @@ export default function Home() {
                 <option disabled>----------------</option>
                 <option value="outra">Outra</option>
               </select>
-              {showOtherCrop && (
-                <input
-                  type="text"
-                  id="otherCrop"
-                  name="otherCrop"
-                  placeholder="Qual?"
-                  value={formData.otherCrop}
-                  onChange={e =>
-                    setFormData(prev => ({
-                      ...prev,
-                      otherCrop: e.target.value,
-                    }))
-                  }
-                  className="rounded-md border border-stone-300 bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl"
-                  // biome-ignore lint/a11y/noAutofocus: <explanation>
-                  autoFocus={true}
-                  required
-                />
-              )}
             </motion.div>
             <motion.div
               className="flex w-1/2 flex-col gap-2"
               variants={itemVariants}
             >
-              <label htmlFor="area" className="mx-1 flex items-center">
-                Área de plantio:
+              <label htmlFor="area" className="mx-1">
+                Área plantio:
               </label>
-              <div className="flex w-full items-center gap-2">
+              <div className="flex items-center gap-2">
                 <input
                   type="number"
                   id="area"
                   name="area"
-                  className="flex-1 rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-700 focus:outline-zeus-400 md:rounded-xl"
+                  className="w-[calc(100%_-_2rem)] rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-700 focus:outline-zeus-400 md:rounded-xl"
                   placeholder="1000"
                   min={100}
                   max={1000000}
@@ -352,23 +333,40 @@ export default function Home() {
               </div>
             </motion.div>
           </div>
+          {showOtherCrop && (
+            <input
+              type="text"
+              id="otherCrop"
+              name="otherCrop"
+              placeholder="Qual?"
+              value={formData.otherCrop}
+              onChange={e =>
+                setFormData(prev => ({
+                  ...prev,
+                  otherCrop: e.target.value,
+                }))
+              }
+              className="w-full rounded-md border border-stone-300 bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl"
+              // biome-ignore lint/a11y/noAutofocus: <explanation>
+              autoFocus={true}
+              required
+            />
+          )}
           <motion.div className="flex flex-col gap-2" variants={itemVariants}>
-            <label htmlFor="file" className="mx-1 flex items-center">
-              <span className="flex items-center gap-2">
-                Anexar arquivo:
-                <div className="group relative flex h-4 w-4 cursor-help items-center justify-center rounded-full bg-stone-300 text-xs">
-                  <b aria-label="help">?</b>
-                  <span
-                    className="-translate-x-1/2 pointer-events-none absolute bottom-full left-1/2 mb-2 w-50 text-pretty rounded-xl border border-stone-300 bg-white p-2 text-center opacity-0 shadow-md transition-opacity duration-300 group-hover:opacity-100"
-                    aria-labelledby="help"
-                  >
-                    Envie arquivo(s) KML ou KMZ contendo suas áreas de plantio
-                    <br />
-                    (opcional)
-                  </span>
-                </div>
-              </span>
-            </label>
+            <div className="mx-1 flex items-center justify-between gap-2">
+              <label htmlFor="file">Anexar arquivo(s)*:</label>
+              <div className="group relative flex h-6 w-6 cursor-help items-center justify-center rounded-full bg-stone-300 text-xs">
+                <b aria-label="help">?</b>
+                <span
+                  className="-translate-x-1/2 pointer-events-none absolute bottom-full left-1/2 mb-2 w-50 text-pretty rounded-xl border border-stone-300 bg-white p-2 text-center opacity-0 shadow-md transition-opacity duration-300 group-hover:opacity-100"
+                  aria-labelledby="help"
+                >
+                  Envie arquivo(s) KML ou KMZ contendo suas áreas de plantio
+                  <br />
+                  (opcional)
+                </span>
+              </div>
+            </div>
             <input
               type="file"
               id="file"
@@ -379,8 +377,9 @@ export default function Home() {
               // onChange={e => handleFormChange(e)}
               multiple
             />
-            <p className="mx-1 text-stone-500 text-xs">
-              * Somente arquivos .KML e .KMZ
+            <p className="mx-1 flex gap-1 text-stone-500 text-xs">
+              <span aria-hidden="true">*</span> Apenas arquivos .KML e .KMZ são
+              permitidos. (opcional)
             </p>
           </motion.div>
           <motion.button
