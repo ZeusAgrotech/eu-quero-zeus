@@ -221,8 +221,8 @@ export default function Home() {
           />
         </motion.figure>
 
-        <form className="w-full space-y-4" onSubmit={handleSubmit}>
-          <fieldset disabled={isSending}>
+        <form onSubmit={handleSubmit} className="w-full">
+          <fieldset disabled={isSending || isSent} className="w-full space-y-4">
             <motion.div className="flex flex-col gap-2" variants={itemVariants}>
               <label htmlFor="name" className="mx-1">
                 Como gostaria de ser chamado?
@@ -347,12 +347,12 @@ export default function Home() {
               />
             )}
             <motion.div className="flex flex-col gap-2" variants={itemVariants}>
-              <div className="mx-1 flex items-center justify-between gap-2">
+              <div className="mx-1 flex items-center gap-3">
                 <label htmlFor="file">Anexar arquivo*:</label>
-                <div className="group relative flex h-6 w-6 cursor-help items-center justify-center rounded-full bg-stone-300 text-xs">
+                <div className="group relative flex h-5 w-5 cursor-help items-center justify-center rounded-full bg-stone-300 text-xs">
                   <b aria-label="help">?</b>
                   <span
-                    className="md:-translate-x-1/2 -right-2 pointer-events-none absolute bottom-full mb-2 w-50 text-pretty rounded-xl border border-stone-300 bg-white p-2 text-center opacity-0 shadow-md transition-opacity duration-300 group-hover:opacity-100 md:left-1/2"
+                    className="-translate-x-1/2 pointer-events-none absolute bottom-full left-1/2 mb-2 w-50 text-pretty rounded-xl border border-stone-300 bg-white p-2 text-center opacity-0 shadow-md transition-opacity duration-300 group-hover:opacity-100"
                     aria-labelledby="help"
                   >
                     Envie arquivo KML ou KMZ contendo suas áreas de plantio
@@ -365,7 +365,7 @@ export default function Home() {
                 type="file"
                 id="file"
                 name="file"
-                className="rounded-md border border-stone-300 bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl"
+                className="w-full rounded-md border border-stone-300 bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl"
                 accept=".kml, .kmz"
                 onChange={e => handleFileChange(e)}
               />
