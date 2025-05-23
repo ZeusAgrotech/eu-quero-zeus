@@ -1,17 +1,13 @@
 'use client'
 
-import { motion } from 'motion/react'
+import type { FormData } from '@/types'
+import { maskNumber, maskPhone, validatePhone } from '@/utils'
+import { AnimatePresence, motion } from 'motion/react'
 import Image from 'next/image'
 import { useState } from 'react'
 import { Range } from 'react-range'
-
-type FormData = {
-  name: string
-  phone: string
-  area: number
-  crop: string
-  otherCrop: string
-}
+import { Spinner } from './_components'
+import { POST } from './api/send/route'
 
 export default function Home() {
   const initialFormData: FormData = {
@@ -23,7 +19,10 @@ export default function Home() {
   }
 
   const [formData, setFormData] = useState<FormData>(initialFormData)
+  const [isPhoneInvalid, setIsPhoneInvalid] = useState(false)
   const [showOtherCrop, setShowOtherCrop] = useState(false)
+  const [isSending, setIsSending] = useState(false)
+  const [hasError, setHasError] = useState(false)
 
   const handleFormChange = (
     event:
@@ -34,41 +33,62 @@ export default function Home() {
 
     if (name === 'crop' && value === 'outra') {
       setShowOtherCrop(true)
-      setFormData(prev => ({ ...prev, otherCrop: '' }))
     } else {
       setShowOtherCrop(false)
+      setFormData(prev => ({ ...prev, otherCrop: '' }))
     }
 
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const formatCellphone = (value: string) => {
-    const digits = value.replace(/\D/g, '')
-
-    if (digits.length <= 2) {
-      return `(${digits}`
-    }
-    if (digits.length <= 6) {
-      return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
-    }
-    if (digits.length <= 10) {
-      return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`
-    }
-
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsPhoneInvalid(false)
+    const formatted = maskPhone(e.target.value.replace(/\D/g, ''))
+    setFormData(prev => ({ ...prev, phone: formatted }))
   }
 
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatCellphone(e.target.value)
-    setFormData(prev => ({ ...prev, phone: formatted }))
+  const handlePhoneValidation = (phone: string) => {
+    if (phone.length > 0) setIsPhoneInvalid(!validatePhone(phone))
   }
 
   const handleSliderChange = (values: number[]) => {
     setFormData(prev => ({ ...prev, area: values[0] }))
   }
 
-  const formatValue = (value: number) =>
-    new Intl.NumberFormat('pt-BR').format(value)
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    // try {
+    //   const response = await fetch('/api/send', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify(formData),
+    //   })
+
+    //   if (response.ok) {
+    //     setFormData(initialFormData)
+    //     setShowOtherCrop(false)
+    //     alert('Formulário enviado com sucesso!')
+    //   } else {
+    //     setHasError(true)
+    //     throw new Error('Erro ao enviar o formulário')
+    //   }
+    // } catch (error) {
+    //   setHasError(true)
+    //   console.error(error)
+    //   alert('Erro ao enviar o formulário')
+    // }
+
+    try {
+      setIsSending(true)
+      await POST(formData)
+    } catch (error) {
+      setHasError(true)
+      console.error(error)
+    } finally {
+      setIsSending(false)
+    }
+  }
 
   const itemVariants = {
     hidden: { opacity: 0, y: -24 },
@@ -78,6 +98,19 @@ export default function Home() {
       transition: {
         type: 'tween',
         ease: 'easeOut',
+      },
+    },
+  }
+
+  const errorVariants = {
+    hidden: { opacity: 0, y: -24 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: 'spring',
+        stifness: 160,
+        damping: 8,
       },
     },
   }
@@ -127,7 +160,7 @@ export default function Home() {
           />
         </motion.figure>
 
-        <form className="w-full space-y-4">
+        <form className="w-full space-y-4" onSubmit={handleSubmit}>
           <motion.div className="flex flex-col gap-2" variants={itemVariants}>
             <label htmlFor="name" className="mx-1">
               Como gostaria de ser chamado?
@@ -136,14 +169,17 @@ export default function Home() {
               type="text"
               id="name"
               name="name"
-              className="rounded-md border border-stone-300 bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl"
+              className="rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-700 focus:outline-zeus-400 md:rounded-xl"
               placeholder="Digite seu nome"
               value={formData.name}
               onChange={e => handleFormChange(e)}
               required
             />
           </motion.div>
-          <motion.div className="flex flex-col gap-2" variants={itemVariants}>
+          <motion.div
+            className="relative flex flex-col gap-2"
+            variants={itemVariants}
+          >
             <label htmlFor="phone" className="mx-1">
               Celular / WhatsApp:
             </label>
@@ -152,12 +188,22 @@ export default function Home() {
               id="phone"
               name="phone"
               placeholder="(__) _____-____"
-              className="rounded-md border border-stone-300 bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl"
+              className={`rounded-md border ${
+                isPhoneInvalid
+                  ? 'focus:!outline-red-600 !bg-red-50 animate-wobble border-red-600 border-dashed text-red-600'
+                  : 'border-stone-300'
+              } bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl`}
               value={formData.phone}
               maxLength={15}
               onChange={handlePhoneChange}
+              onBlur={e => handlePhoneValidation(e.target.value)}
               required
             />
+            {isPhoneInvalid && (
+              <span className="absolute right-3 bottom-2.5 animate-wobble">
+                🚫
+              </span>
+            )}
           </motion.div>
           <motion.div className="flex flex-col gap-2" variants={itemVariants}>
             <label
@@ -165,7 +211,7 @@ export default function Home() {
               className="mx-1 mb-1 flex items-center justify-between"
             >
               <span>Área de plantio:</span>{' '}
-              <span>{formatValue(formData.area)} ha</span>
+              <span>{maskNumber(formData.area)} ha</span>
             </label>
             <Range
               // label="Select your value"
@@ -236,7 +282,9 @@ export default function Home() {
                 name="otherCrop"
                 placeholder="Qual?"
                 value={formData.otherCrop}
-                onChange={e => handleFormChange(e)}
+                onChange={e =>
+                  setFormData(prev => ({ ...prev, otherCrop: e.target.value }))
+                }
                 className="rounded-md border border-stone-300 bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl"
               />
             )}
@@ -278,9 +326,22 @@ export default function Home() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             variants={itemVariants}
+            disabled={isPhoneInvalid || isSending}
           >
-            Enviar
+            {isSending ? <Spinner /> : 'Enviar'}
           </motion.button>
+
+          {hasError && (
+            <AnimatePresence>
+              <motion.p
+                className="flex gap-1 text-pretty rounded-md border border-red-600 bg-red-50 px-4 py-3 text-red-600 text-sm leading-tight md:rounded-xl"
+                variants={errorVariants}
+              >
+                <span aria-hidden="true">⛔</span>
+                Erro no servidor. Tente novamente mais tarde.
+              </motion.p>
+            </AnimatePresence>
+          )}
         </form>
       </motion.div>
 
