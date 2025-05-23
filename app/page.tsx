@@ -7,7 +7,35 @@ import Image from 'next/image'
 import { useState } from 'react'
 import { Range } from 'react-range'
 import { Spinner } from './_components'
-import { POST } from './api/send/route'
+
+const crops = {
+  anual: [
+    { value: '3', label: 'Algodão' },
+    { value: '23', label: 'Arroz' },
+    { value: '24', label: 'Crotalaria' },
+    { value: '25', label: 'Ervilha' },
+    { value: '4', label: 'Feijão' },
+    { value: '26', label: 'Gergelim' },
+    { value: '28', label: 'Girasol' },
+    { value: '29', label: 'Milheto' },
+    { value: '2', label: 'Milho' },
+    { value: '30', label: 'Painço' },
+    { value: '1', label: 'Soja' },
+    { value: '5', label: 'Sorgo' },
+    { value: '21', label: 'Tomate' },
+    { value: '20', label: 'Trigo' },
+  ],
+  perene: [
+    { value: '16', label: 'Alho' },
+    { value: '27', label: 'Banana' },
+    { value: '7', label: 'Café' },
+    { value: '22', label: 'Pastagem' },
+  ],
+  semiPerene: [
+    { value: '6', label: 'Cana planta' },
+    { value: '19', label: 'Cana soca' },
+  ],
+}
 
 export default function Home() {
   const initialFormData: FormData = {
@@ -22,6 +50,7 @@ export default function Home() {
   const [isPhoneInvalid, setIsPhoneInvalid] = useState(false)
   const [showOtherCrop, setShowOtherCrop] = useState(false)
   const [isSending, setIsSending] = useState(false)
+  const [isSent, setIsSent] = useState(false)
   const [hasError, setHasError] = useState(false)
 
   const handleFormChange = (
@@ -59,6 +88,8 @@ export default function Home() {
     e.preventDefault()
 
     try {
+      setIsSending(true)
+
       const response = await fetch('/api/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -66,17 +97,19 @@ export default function Home() {
       })
 
       if (response.ok) {
+        setIsSent(true)
         setFormData(initialFormData)
         setShowOtherCrop(false)
-        alert('Formulário enviado com sucesso!')
       } else {
+        setIsSent(false)
         setHasError(true)
         throw new Error('Erro ao enviar o formulário')
       }
     } catch (error) {
       setHasError(true)
       console.error(error)
-      alert('Erro ao enviar o formulário')
+    } finally {
+      setIsSending(false)
     }
   }
 
@@ -92,7 +125,7 @@ export default function Home() {
     },
   }
 
-  const errorVariants = {
+  const feedbackVariants = {
     hidden: { opacity: 0, y: -24 },
     visible: {
       opacity: 1,
@@ -196,15 +229,13 @@ export default function Home() {
             )}
           </motion.div>
           <motion.div className="flex flex-col gap-2" variants={itemVariants}>
-            <label
-              htmlFor="area"
-              className="mx-1 mb-1 flex items-center justify-between"
-            >
+            <label htmlFor="area" className="mx-1 mb-1 flex items-center gap-1">
               <span>Área de plantio:</span>{' '}
-              <span>{maskNumber(formData.area)} ha</span>
+              <span>
+                <b>{maskNumber(formData.area)}</b> ha
+              </span>
             </label>
             <Range
-              // label="Select your value"
               step={100}
               min={100}
               max={1000000}
@@ -250,20 +281,33 @@ export default function Home() {
             <select
               id="crop"
               name="crop"
+              value={formData.crop}
+              onChange={handleFormChange}
               className="rounded-md border border-stone-300 bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl"
               required
-              value={formData.crop}
-              onChange={e => handleFormChange(e)}
             >
-              <option value="">Selecione</option>
-              <option value="Algodão">Algodão</option>
-              <option value="Arroz">Arroz</option>
-              <option value="Cana-de-açúcar">Cana-de-açúcar</option>
-              <option value="Feijão">Feijão</option>
-              <option value="Milho">Milho</option>
-              <option value="Soja">Soja</option>
-              <option value="Trigo">Trigo</option>
-              <option value="outra">Outra</option>
+              <option value="" disabled>
+                Selecione
+              </option>
+              {Object.entries(crops).map(([group, options]) => (
+                <optgroup
+                  key={group}
+                  label={group
+                    .replace(/([A-Z])/g, ' $1')
+                    .replace(/^./, str => str.toUpperCase())}
+                >
+                  {(
+                    options as Array<{ value: string; label: string | null }>
+                  ).map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+              <optgroup label="Outra">
+                <option value="outra">Informar</option>
+              </optgroup>
             </select>
             {showOtherCrop && (
               <input
@@ -321,17 +365,34 @@ export default function Home() {
             {isSending ? <Spinner /> : 'Enviar'}
           </motion.button>
 
-          {hasError && (
-            <AnimatePresence>
+          <AnimatePresence>
+            {hasError && (
               <motion.p
                 className="flex gap-1 text-pretty rounded-md border border-red-600 bg-red-50 px-4 py-3 text-red-600 text-sm leading-tight md:rounded-xl"
-                variants={errorVariants}
+                variants={feedbackVariants}
               >
                 <span aria-hidden="true">⛔</span>
-                Erro no servidor. Tente novamente mais tarde.
+                <div>
+                  <b>Erro no servidor.</b>
+                  <br />
+                  Tente novamente mais tarde.
+                </div>
               </motion.p>
-            </AnimatePresence>
-          )}
+            )}
+
+            {isSent && (
+              <motion.p
+                className="flex gap-1 text-pretty rounded-md border border-green-600 bg-green-50 px-4 py-3 text-green-600 text-sm leading-tight md:rounded-xl"
+                variants={feedbackVariants}
+              >
+                <span aria-hidden="true">✅</span>
+                <div>
+                  <b>Dados enviados!</b>
+                  <br /> Aguarde que em breve entraremos em contato.
+                </div>
+              </motion.p>
+            )}
+          </AnimatePresence>
         </form>
       </motion.div>
 
