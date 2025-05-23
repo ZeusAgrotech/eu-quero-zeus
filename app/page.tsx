@@ -1,15 +1,14 @@
 'use client'
 
 import type { FormData } from '@/types'
-import { maskNumber, maskPhone, validatePhone } from '@/utils'
+import { maskPhone, validatePhone } from '@/utils'
 import { AnimatePresence, motion } from 'motion/react'
 import Image from 'next/image'
 import { useState } from 'react'
-import { Range } from 'react-range'
 import { Spinner } from './_components'
 
 const crops = {
-  anual: [
+  Anual: [
     { value: '3', label: 'Algodão' },
     { value: '23', label: 'Arroz' },
     { value: '24', label: 'Crotalaria' },
@@ -25,13 +24,13 @@ const crops = {
     { value: '21', label: 'Tomate' },
     { value: '20', label: 'Trigo' },
   ],
-  perene: [
+  Perene: [
     { value: '16', label: 'Alho' },
     { value: '27', label: 'Banana' },
     { value: '7', label: 'Café' },
     { value: '22', label: 'Pastagem' },
   ],
-  semiPerene: [
+  'Semi perene': [
     { value: '6', label: 'Cana planta' },
     { value: '19', label: 'Cana soca' },
   ],
@@ -41,9 +40,10 @@ export default function Home() {
   const initialFormData: FormData = {
     name: '',
     phone: '',
-    area: 500,
+    area: 100,
     crop: '',
     otherCrop: '',
+    files: null,
   }
 
   const [formData, setFormData] = useState<FormData>(initialFormData)
@@ -62,7 +62,7 @@ export default function Home() {
 
     if (name === 'crop' && value === 'outra') {
       setShowOtherCrop(true)
-    } else {
+    } else if (name === 'crop' && value !== 'outra') {
       setShowOtherCrop(false)
       setFormData(prev => ({ ...prev, otherCrop: '' }))
     }
@@ -146,7 +146,7 @@ export default function Home() {
       viewport={{ once: true }}
     >
       <motion.h1
-        className="font-bold text-4xl tracking-tighter"
+        className="font-bold font-mono text-4xl tracking-tighter"
         variants={{
           hidden: { opacity: 0, y: -24, filter: 'blur(8px)' },
           visible: { opacity: 1, y: 0, filter: 'blur(0px)' },
@@ -172,7 +172,7 @@ export default function Home() {
           },
         }}
       >
-        <motion.figure variants={itemVariants}>
+        <motion.figure className="mb-2 w-full" variants={itemVariants}>
           <Image
             src="/assets/images/logo-zeus-gradient.svg"
             alt="Logo do Zeus"
@@ -194,6 +194,7 @@ export default function Home() {
               name="name"
               className="rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-700 focus:outline-zeus-400 md:rounded-xl"
               placeholder="Digite seu nome"
+              autoCapitalize="words"
               value={formData.name}
               onChange={e => handleFormChange(e)}
               required
@@ -213,9 +214,9 @@ export default function Home() {
               placeholder="(__) _____-____"
               className={`rounded-md border ${
                 isPhoneInvalid
-                  ? 'focus:!outline-red-600 !bg-red-50 animate-wobble border-red-600 border-dashed text-red-600'
-                  : 'border-stone-300'
-              } bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl`}
+                  ? '!bg-red-50 animate-wobble border-red-600 border-dashed text-red-600 focus:outline-red-600'
+                  : 'border-stone-300 focus:outline-zeus-400'
+              } bg-white px-3 py-2 md:rounded-xl`}
               value={formData.phone}
               maxLength={15}
               onChange={handlePhoneChange}
@@ -228,8 +229,8 @@ export default function Home() {
               </span>
             )}
           </motion.div>
-          <motion.div className="flex flex-col gap-2" variants={itemVariants}>
-            <label htmlFor="area" className="mx-1 mb-1 flex items-center gap-1">
+          {/* <motion.div className="flex flex-col gap-2" variants={itemVariants}>
+            <label htmlFor="area" className="mx-1 flex items-center gap-1">
               <span>Área de plantio:</span>{' '}
               <span>
                 <b>{maskNumber(formData.area)}</b> ha
@@ -273,75 +274,99 @@ export default function Home() {
                 />
               )}
             />
-          </motion.div>
-          <motion.div className="flex flex-col gap-2" variants={itemVariants}>
-            <label htmlFor="crop" className="mx-1">
-              Cultura plantada:
-            </label>
-            <select
-              id="crop"
-              name="crop"
-              value={formData.crop}
-              onChange={handleFormChange}
-              className="rounded-md border border-stone-300 bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl"
-              required
+          </motion.div> */}
+          <div className="flex gap-4">
+            <motion.div
+              className="flex w-1/2 flex-col gap-2"
+              variants={itemVariants}
             >
-              <option value="" disabled>
-                Selecione
-              </option>
-              {Object.entries(crops).map(([group, options]) => (
-                <optgroup
-                  key={group}
-                  label={group
-                    .replace(/([A-Z])/g, ' $1')
-                    .replace(/^./, str => str.toUpperCase())}
-                >
-                  {(
-                    options as Array<{ value: string; label: string | null }>
-                  ).map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-              <optgroup label="Outra">
-                <option value="outra">Informar</option>
-              </optgroup>
-            </select>
-            {showOtherCrop && (
-              <input
-                type="text"
-                id="otherCrop"
-                name="otherCrop"
-                placeholder="Qual?"
-                value={formData.otherCrop}
-                onChange={e =>
-                  setFormData(prev => ({ ...prev, otherCrop: e.target.value }))
-                }
+              <label htmlFor="crop" className="mx-1">
+                Cultura:
+              </label>
+              <select
+                id="crop"
+                name="crop"
+                value={formData.crop}
+                onChange={handleFormChange}
                 className="rounded-md border border-stone-300 bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl"
-              />
-            )}
-          </motion.div>
-          {/* <motion.div
-            className="flex flex-col gap-2"
-            variants={itemVariants}
-          >
-            <label
-              htmlFor="file"
-              className="mx-1 flex items-center justify-between"
+                required
+              >
+                <option value="" disabled>
+                  Selecione
+                </option>
+                {Object.entries(crops).map(([group, options]) => (
+                  <optgroup key={group} label={group}>
+                    {(
+                      options as Array<{ value: string; label: string | null }>
+                    ).map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+                <option disabled>----------------</option>
+                <option value="outra">Outra</option>
+              </select>
+              {showOtherCrop && (
+                <input
+                  type="text"
+                  id="otherCrop"
+                  name="otherCrop"
+                  placeholder="Qual?"
+                  value={formData.otherCrop}
+                  onChange={e =>
+                    setFormData(prev => ({
+                      ...prev,
+                      otherCrop: e.target.value,
+                    }))
+                  }
+                  className="rounded-md border border-stone-300 bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl"
+                  // biome-ignore lint/a11y/noAutofocus: <explanation>
+                  autoFocus={true}
+                  required
+                />
+              )}
+            </motion.div>
+            <motion.div
+              className="flex w-1/2 flex-col gap-2"
+              variants={itemVariants}
             >
+              <label htmlFor="area" className="mx-1 flex items-center">
+                Área de plantio:
+              </label>
+              <div className="flex w-full items-center gap-2">
+                <input
+                  type="number"
+                  id="area"
+                  name="area"
+                  className="flex-1 rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-700 focus:outline-zeus-400 md:rounded-xl"
+                  placeholder="1000"
+                  min={100}
+                  max={1000000}
+                  value={formData.area}
+                  onChange={e => handleFormChange(e)}
+                  required
+                />
+                <span>ha</span>
+              </div>
+            </motion.div>
+          </div>
+          <motion.div className="flex flex-col gap-2" variants={itemVariants}>
+            <label htmlFor="file" className="mx-1 flex items-center">
               <span className="flex items-center gap-2">
-                Anexar KML:{' '}
-                <span
-                  className="flex h-4 w-4 items-center justify-center rounded-full bg-stone-300 font-bold text-xs"
-                  title="Envie seu arquivo KML contendo suas áreas de plantio"
-                >
-                  ?
-                </span>
-              </span>
-              <span className="mr-1 text-[10px] text-stone-400 uppercase">
-                Opcional
+                Anexar arquivo:
+                <div className="group relative flex h-4 w-4 cursor-help items-center justify-center rounded-full bg-stone-300 text-xs">
+                  <b aria-label="help">?</b>
+                  <span
+                    className="-translate-x-1/2 pointer-events-none absolute bottom-full left-1/2 mb-2 w-50 text-pretty rounded-xl border border-stone-300 bg-white p-2 text-center opacity-0 shadow-md transition-opacity duration-300 group-hover:opacity-100"
+                    aria-labelledby="help"
+                  >
+                    Envie arquivo(s) KML ou KMZ contendo suas áreas de plantio
+                    <br />
+                    (opcional)
+                  </span>
+                </div>
               </span>
             </label>
             <input
@@ -352,8 +377,12 @@ export default function Home() {
               accept=".kml, .kmz"
               // value={formData.file}
               // onChange={e => handleFormChange(e)}
+              multiple
             />
-          </motion.div> */}
+            <p className="mx-1 text-stone-500 text-xs">
+              * Somente arquivos .KML e .KMZ
+            </p>
+          </motion.div>
           <motion.button
             type="submit"
             className="btn btn-primary mt-8 w-full"
@@ -366,30 +395,37 @@ export default function Home() {
           </motion.button>
 
           <AnimatePresence>
-            {hasError && (
-              <motion.p
-                className="flex gap-1 text-pretty rounded-md border border-red-600 bg-red-50 px-4 py-3 text-red-600 text-sm leading-tight md:rounded-xl"
-                variants={feedbackVariants}
-              >
-                <span aria-hidden="true">⛔</span>
-                <div>
-                  <b>Erro no servidor.</b>
-                  <br />
-                  Tente novamente mais tarde.
-                </div>
-              </motion.p>
-            )}
-
             {isSent && (
               <motion.p
                 className="flex gap-1 text-pretty rounded-md border border-green-600 bg-green-50 px-4 py-3 text-green-600 text-sm leading-tight md:rounded-xl"
                 variants={feedbackVariants}
               >
                 <span aria-hidden="true">✅</span>
-                <div>
+                <span>
                   <b>Dados enviados!</b>
                   <br /> Aguarde que em breve entraremos em contato.
-                </div>
+                </span>
+              </motion.p>
+            )}
+
+            {hasError && (
+              <motion.p
+                className="flex gap-1 text-pretty rounded-md border border-red-600 bg-red-50 px-4 py-3 text-red-600 text-sm leading-tight md:rounded-xl"
+                variants={feedbackVariants}
+              >
+                <span aria-hidden="true">⛔</span>
+                <span>
+                  <b>Erro no servidor.</b>
+                  <br />
+                  Tente novamente mais tarde.
+                </span>
+                <button
+                  type="button"
+                  className="ml-auto"
+                  onClick={() => setHasError(false)}
+                >
+                  ✖︎
+                </button>
               </motion.p>
             )}
           </AnimatePresence>
@@ -404,7 +440,7 @@ export default function Home() {
             opacity: 1,
             y: 0,
             filter: 'blur(0px)',
-            transition: { delay: 1.5, duration: 1, ease: 'easeOut' },
+            transition: { delay: 0.5, duration: 1, ease: 'easeOut' },
           },
         }}
       >

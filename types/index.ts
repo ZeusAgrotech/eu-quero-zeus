@@ -4,4 +4,5 @@ export type FormData = {
   area: number
   crop: string
   otherCrop?: string
+  files?: FileList | null
 }
