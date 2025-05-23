@@ -58,35 +58,25 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    // try {
-    //   const response = await fetch('/api/send', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(formData),
-    //   })
-
-    //   if (response.ok) {
-    //     setFormData(initialFormData)
-    //     setShowOtherCrop(false)
-    //     alert('Formulário enviado com sucesso!')
-    //   } else {
-    //     setHasError(true)
-    //     throw new Error('Erro ao enviar o formulário')
-    //   }
-    // } catch (error) {
-    //   setHasError(true)
-    //   console.error(error)
-    //   alert('Erro ao enviar o formulário')
-    // }
-
     try {
-      setIsSending(true)
-      await POST(formData)
+      const response = await fetch('/api/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+
+      if (response.ok) {
+        setFormData(initialFormData)
+        setShowOtherCrop(false)
+        alert('Formulário enviado com sucesso!')
+      } else {
+        setHasError(true)
+        throw new Error('Erro ao enviar o formulário')
+      }
     } catch (error) {
       setHasError(true)
       console.error(error)
-    } finally {
-      setIsSending(false)
+      alert('Erro ao enviar o formulário')
     }
   }
 
