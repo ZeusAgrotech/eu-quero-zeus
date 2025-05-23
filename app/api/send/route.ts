@@ -4,8 +4,13 @@ import { Resend } from 'resend'
 
 const resend = new Resend(String(process.env.NEXT_RESEND_API_KEY))
 
-export async function POST({ name, phone, area, crop, otherCrop }: FormData) {
-  if (otherCrop) crop = otherCrop
+export async function POST(request: Request) {
+  const formData: FormData = await request.json()
+
+  const { name, phone, area, crop, otherCrop } = formData
+
+  let finalCrop = crop
+  if (otherCrop) finalCrop = otherCrop
 
   try {
     const { data, error } = await resend.emails.send({
@@ -16,7 +21,7 @@ export async function POST({ name, phone, area, crop, otherCrop }: FormData) {
         name,
         phone,
         area,
-        crop,
+        crop: finalCrop,
       }) as React.ReactElement,
     })
 
