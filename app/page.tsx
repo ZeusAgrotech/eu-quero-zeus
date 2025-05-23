@@ -9,30 +9,30 @@ import { Spinner } from './_components'
 
 const crops = {
   Anual: [
-    { value: '3', label: 'Algodão' },
-    { value: '23', label: 'Arroz' },
-    { value: '24', label: 'Crotalaria' },
-    { value: '25', label: 'Ervilha' },
-    { value: '4', label: 'Feijão' },
-    { value: '26', label: 'Gergelim' },
-    { value: '28', label: 'Girasol' },
-    { value: '29', label: 'Milheto' },
-    { value: '2', label: 'Milho' },
-    { value: '30', label: 'Painço' },
-    { value: '1', label: 'Soja' },
-    { value: '5', label: 'Sorgo' },
-    { value: '21', label: 'Tomate' },
-    { value: '20', label: 'Trigo' },
+    { value: 3, label: 'Algodão' },
+    { value: 23, label: 'Arroz' },
+    { value: 24, label: 'Crotalaria' },
+    { value: 25, label: 'Ervilha' },
+    { value: 4, label: 'Feijão' },
+    { value: 26, label: 'Gergelim' },
+    { value: 28, label: 'Girasol' },
+    { value: 29, label: 'Milheto' },
+    { value: 2, label: 'Milho' },
+    { value: 30, label: 'Painço' },
+    { value: 1, label: 'Soja' },
+    { value: 5, label: 'Sorgo' },
+    { value: 21, label: 'Tomate' },
+    { value: 20, label: 'Trigo' },
   ],
   Perene: [
-    { value: '16', label: 'Alho' },
-    { value: '27', label: 'Banana' },
-    { value: '7', label: 'Café' },
-    { value: '22', label: 'Pastagem' },
+    { value: 16, label: 'Alho' },
+    { value: 27, label: 'Banana' },
+    { value: 7, label: 'Café' },
+    { value: 22, label: 'Pastagem' },
   ],
   'Semi perene': [
-    { value: '6', label: 'Cana planta' },
-    { value: '19', label: 'Cana soca' },
+    { value: 6, label: 'Cana planta' },
+    { value: 19, label: 'Cana soca' },
   ],
 }
 
@@ -43,7 +43,7 @@ export default function Home() {
     area: 100,
     crop: '',
     otherCrop: '',
-    files: null,
+    file: null,
   }
 
   const [formData, setFormData] = useState<FormData>(initialFormData)
@@ -80,8 +80,20 @@ export default function Home() {
     if (phone.length > 0) setIsPhoneInvalid(!validatePhone(phone))
   }
 
-  const handleSliderChange = (values: number[]) => {
-    setFormData(prev => ({ ...prev, area: values[0] }))
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    setFormData(prev => ({ ...prev, file: file || null }))
+  }
+
+  const resetForm = () => {
+    setFormData(initialFormData)
+
+    // Reset the file input element directly
+    const fileInput = document.getElementById('file') as HTMLInputElement
+    if (fileInput) fileInput.value = ''
+
+    setShowOtherCrop(false)
+    setIsSent(false)
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -90,19 +102,41 @@ export default function Home() {
     try {
       setIsSending(true)
 
+      // Create a copy of form data for submission
+      const submissionData = { ...formData }
+
+      // Convert file to base64 if it exists
+      if (formData.file instanceof File) {
+        const convertFileToBase64 = (file: File): Promise<string> => {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.readAsDataURL(file)
+            reader.onload = () => resolve(reader.result as string)
+            reader.onerror = error => reject(error)
+          })
+        }
+        const fileBase64 = await convertFileToBase64(formData.file)
+        submissionData.file = {
+          content: fileBase64,
+          filename: formData.file.name,
+          type: formData.file.type || 'application/vnd.google-earth.kml+xml',
+        }
+      }
+
       const response = await fetch('/api/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(submissionData),
       })
 
       if (response.ok) {
         setIsSent(true)
-        setFormData(initialFormData)
-        setShowOtherCrop(false)
+        setTimeout(() => {
+          resetForm()
+        }, 4000)
       } else {
-        setIsSent(false)
         setHasError(true)
+        setIsSent(false)
         throw new Error('Erro ao enviar o formulário')
       }
     } catch (error) {
@@ -111,6 +145,26 @@ export default function Home() {
     } finally {
       setIsSending(false)
     }
+  }
+
+  const titleVariants = {
+    hidden: { opacity: 0, y: -24, filter: 'blur(8px)' },
+    visible: { opacity: 1, y: 0, filter: 'blur(0px)' },
+  }
+
+  const containerVariants = {
+    hidden: { opacity: 0, scale: 0 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        type: 'spring',
+        stiffness: 200,
+        damping: 20,
+        staggerChildren: 0.1,
+        delayChildren: 0.4,
+      },
+    },
   }
 
   const itemVariants = {
@@ -147,30 +201,14 @@ export default function Home() {
     >
       <motion.h1
         className="font-bold font-mono text-4xl tracking-tighter"
-        variants={{
-          hidden: { opacity: 0, y: -24, filter: 'blur(8px)' },
-          visible: { opacity: 1, y: 0, filter: 'blur(0px)' },
-        }}
+        variants={titleVariants}
       >
         Eu quero Zeus
       </motion.h1>
 
       <motion.div
         className="flex w-full max-w-md flex-col items-center gap-4 rounded-2xl bg-gradient-to-br from-stone-50 to-stone-100 p-4 shadow-[0_2px_4px_rgba(0,0,0,0.3)] md:rounded-4xl md:p-6"
-        variants={{
-          hidden: { opacity: 0, scale: 0 },
-          visible: {
-            opacity: 1,
-            scale: 1,
-            transition: {
-              type: 'spring',
-              stiffness: 200,
-              damping: 20,
-              staggerChildren: 0.1,
-              delayChildren: 0.4,
-            },
-          },
-        }}
+        variants={containerVariants}
       >
         <motion.figure className="mb-2 w-full" variants={itemVariants}>
           <Image
@@ -184,250 +222,212 @@ export default function Home() {
         </motion.figure>
 
         <form className="w-full space-y-4" onSubmit={handleSubmit}>
-          <motion.div className="flex flex-col gap-2" variants={itemVariants}>
-            <label htmlFor="name" className="mx-1">
-              Como gostaria de ser chamado?
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              className="rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-700 focus:outline-zeus-400 md:rounded-xl"
-              placeholder="Digite seu nome"
-              autoCapitalize="words"
-              value={formData.name}
-              onChange={e => handleFormChange(e)}
-              required
-            />
-          </motion.div>
-          <motion.div
-            className="relative flex flex-col gap-2"
-            variants={itemVariants}
-          >
-            <label htmlFor="phone" className="mx-1">
-              Celular / WhatsApp:
-            </label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              placeholder="(__) _____-____"
-              className={`rounded-md border ${
-                isPhoneInvalid
-                  ? '!bg-red-50 animate-wobble border-red-600 border-dashed text-red-600 focus:outline-red-600'
-                  : 'border-stone-300 focus:outline-zeus-400'
-              } bg-white px-3 py-2 md:rounded-xl`}
-              value={formData.phone}
-              maxLength={15}
-              onChange={handlePhoneChange}
-              onBlur={e => handlePhoneValidation(e.target.value)}
-              required
-            />
-            {isPhoneInvalid && (
-              <span className="absolute right-3 bottom-2.5 animate-wobble">
-                🚫
-              </span>
-            )}
-          </motion.div>
-          {/* <motion.div className="flex flex-col gap-2" variants={itemVariants}>
-            <label htmlFor="area" className="mx-1 flex items-center gap-1">
-              <span>Área de plantio:</span>{' '}
-              <span>
-                <b>{maskNumber(formData.area)}</b> ha
-              </span>
-            </label>
-            <Range
-              step={100}
-              min={100}
-              max={1000000}
-              values={[formData.area]}
-              onChange={values => handleSliderChange(values)}
-              renderTrack={({ props, children }) => (
-                <div
-                  {...props}
-                  style={{
-                    ...props.style,
-                    borderRadius: 'var(--radius-sm)',
-                    backgroundColor: 'var(--color-zeus-200)',
-                    height: 'calc(var(--spacing) * 1)',
-                    marginInline: 'auto',
-                    width: 'calc(100% - 1.25rem)',
-                  }}
-                >
-                  {children}
-                </div>
-              )}
-              renderThumb={({ props }) => (
-                <div
-                  {...props}
-                  key={props.key}
-                  style={{
-                    ...props.style,
-                    backgroundColor: 'var(--color-zeus-400)',
-                    borderRadius: '50%',
-                    height: 'calc(var(--spacing) * 4)',
-                    outlineColor: 'var(--color-zeus-400)',
-                    outlineOffset: '2px',
-                    transform: 'translateY(-6px)',
-                    width: 'calc(var(--spacing) * 4)',
-                  }}
-                />
-              )}
-            />
-          </motion.div> */}
-          <div className="flex gap-4">
-            <motion.div
-              className="flex w-1/2 flex-col gap-2"
-              variants={itemVariants}
-            >
-              <label htmlFor="crop" className="mx-1">
-                Cultura:
+          <fieldset disabled={isSending}>
+            <motion.div className="flex flex-col gap-2" variants={itemVariants}>
+              <label htmlFor="name" className="mx-1">
+                Como gostaria de ser chamado?
               </label>
-              <select
-                id="crop"
-                name="crop"
-                value={formData.crop}
-                onChange={handleFormChange}
-                className="rounded-md border border-stone-300 bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl"
+              <input
+                type="text"
+                id="name"
+                name="name"
+                className="rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-700 focus:outline-zeus-400 md:rounded-xl"
+                placeholder="Digite seu nome"
+                autoCapitalize="words"
+                value={formData.name}
+                onChange={e => handleFormChange(e)}
                 required
-              >
-                <option value="" disabled>
-                  Selecione
-                </option>
-                {Object.entries(crops).map(([group, options]) => (
-                  <optgroup key={group} label={group}>
-                    {(
-                      options as Array<{ value: string; label: string | null }>
-                    ).map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-                <option disabled>----------------</option>
-                <option value="outra">Outra</option>
-              </select>
+              />
             </motion.div>
             <motion.div
-              className="flex w-1/2 flex-col gap-2"
+              className="relative flex flex-col gap-2"
               variants={itemVariants}
             >
-              <label htmlFor="area" className="mx-1">
-                Área plantio:
+              <label htmlFor="phone" className="mx-1">
+                Celular / WhatsApp:
               </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  id="area"
-                  name="area"
-                  className="w-[calc(100%_-_2rem)] rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-700 focus:outline-zeus-400 md:rounded-xl"
-                  placeholder="1000"
-                  min={100}
-                  max={1000000}
-                  value={formData.area}
-                  onChange={e => handleFormChange(e)}
-                  required
-                />
-                <span>ha</span>
-              </div>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                placeholder="(__) _____-____"
+                className={`rounded-md border ${
+                  isPhoneInvalid
+                    ? '!bg-red-50 animate-wobble border-red-600 border-dashed text-red-600 focus:outline-red-600'
+                    : 'border-stone-300 focus:outline-zeus-400'
+                } bg-white px-3 py-2 md:rounded-xl`}
+                value={formData.phone}
+                maxLength={15}
+                onChange={handlePhoneChange}
+                onBlur={e => handlePhoneValidation(e.target.value)}
+                required
+              />
+              {isPhoneInvalid && (
+                <span className="absolute right-3 bottom-2.5 animate-wobble">
+                  🚫
+                </span>
+              )}
             </motion.div>
-          </div>
-          {showOtherCrop && (
-            <input
-              type="text"
-              id="otherCrop"
-              name="otherCrop"
-              placeholder="Qual?"
-              value={formData.otherCrop}
-              onChange={e =>
-                setFormData(prev => ({
-                  ...prev,
-                  otherCrop: e.target.value,
-                }))
-              }
-              className="w-full rounded-md border border-stone-300 bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl"
-              // biome-ignore lint/a11y/noAutofocus: <explanation>
-              autoFocus={true}
-              required
-            />
-          )}
-          <motion.div className="flex flex-col gap-2" variants={itemVariants}>
-            <div className="mx-1 flex items-center justify-between gap-2">
-              <label htmlFor="file">Anexar arquivo(s)*:</label>
-              <div className="group relative flex h-6 w-6 cursor-help items-center justify-center rounded-full bg-stone-300 text-xs">
-                <b aria-label="help">?</b>
-                <span
-                  className="-translate-x-1/2 pointer-events-none absolute bottom-full left-1/2 mb-2 w-50 text-pretty rounded-xl border border-stone-300 bg-white p-2 text-center opacity-0 shadow-md transition-opacity duration-300 group-hover:opacity-100"
-                  aria-labelledby="help"
+            <div className="flex gap-4">
+              <motion.div
+                className="flex w-1/2 flex-col gap-2"
+                variants={itemVariants}
+              >
+                <label htmlFor="crop" className="mx-1">
+                  Cultura:
+                </label>
+                <select
+                  id="crop"
+                  name="crop"
+                  value={formData.crop}
+                  onChange={handleFormChange}
+                  className="rounded-md border border-stone-300 bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl"
+                  required
                 >
-                  Envie arquivo(s) KML ou KMZ contendo suas áreas de plantio
-                  <br />
-                  (opcional)
-                </span>
-              </div>
+                  <option value="">Selecione</option>
+                  {Object.entries(crops).map(([group, options]) => (
+                    <optgroup key={group} label={group}>
+                      {(
+                        options as Array<{
+                          value: number
+                          label: string | null
+                        }>
+                      ).map(option => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                  <option disabled>----------------</option>
+                  <option value="outra">Outra</option>
+                </select>
+              </motion.div>
+              <motion.div
+                className="flex w-1/2 flex-col gap-2"
+                variants={itemVariants}
+              >
+                <label htmlFor="area" className="mx-1">
+                  Área plantio:
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    id="area"
+                    name="area"
+                    className="w-[calc(100%_-_2rem)] rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-700 focus:outline-zeus-400 md:rounded-xl"
+                    placeholder="1000"
+                    min={100}
+                    max={1000000}
+                    value={formData.area}
+                    onChange={e => handleFormChange(e)}
+                    required
+                  />
+                  <span>ha</span>
+                </div>
+              </motion.div>
             </div>
-            <input
-              type="file"
-              id="file"
-              name="file"
-              className="rounded-md border border-stone-300 bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl"
-              accept=".kml, .kmz"
-              // value={formData.file}
-              // onChange={e => handleFormChange(e)}
-              multiple
-            />
-            <p className="mx-1 flex gap-1 text-stone-500 text-xs">
-              <span aria-hidden="true">*</span> Apenas arquivos .KML e .KMZ são
-              permitidos. (opcional)
-            </p>
-          </motion.div>
-          <motion.button
-            type="submit"
-            className="btn btn-primary mt-8 w-full"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            variants={itemVariants}
-            disabled={isPhoneInvalid || isSending}
-          >
-            {isSending ? <Spinner /> : 'Enviar'}
-          </motion.button>
-
-          <AnimatePresence>
-            {isSent && (
-              <motion.p
-                className="flex gap-1 text-pretty rounded-md border border-green-600 bg-green-50 px-4 py-3 text-green-600 text-sm leading-tight md:rounded-xl"
-                variants={feedbackVariants}
-              >
-                <span aria-hidden="true">✅</span>
-                <span>
-                  <b>Dados enviados!</b>
-                  <br /> Aguarde que em breve entraremos em contato.
-                </span>
-              </motion.p>
+            {showOtherCrop && (
+              <input
+                type="text"
+                id="otherCrop"
+                name="otherCrop"
+                placeholder="Qual?"
+                value={formData.otherCrop}
+                onChange={e =>
+                  setFormData(prev => ({
+                    ...prev,
+                    otherCrop: e.target.value,
+                  }))
+                }
+                className="w-full rounded-md border border-stone-300 bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl"
+                // biome-ignore lint/a11y/noAutofocus: <explanation>
+                autoFocus={true}
+                required
+              />
             )}
+            <motion.div className="flex flex-col gap-2" variants={itemVariants}>
+              <div className="mx-1 flex items-center justify-between gap-2">
+                <label htmlFor="file">Anexar arquivo*:</label>
+                <div className="group relative flex h-6 w-6 cursor-help items-center justify-center rounded-full bg-stone-300 text-xs">
+                  <b aria-label="help">?</b>
+                  <span
+                    className="md:-translate-x-1/2 -right-2 pointer-events-none absolute bottom-full mb-2 w-50 text-pretty rounded-xl border border-stone-300 bg-white p-2 text-center opacity-0 shadow-md transition-opacity duration-300 group-hover:opacity-100 md:left-1/2"
+                    aria-labelledby="help"
+                  >
+                    Envie arquivo KML ou KMZ contendo suas áreas de plantio
+                    <br />
+                    (opcional)
+                  </span>
+                </div>
+              </div>
+              <input
+                type="file"
+                id="file"
+                name="file"
+                className="rounded-md border border-stone-300 bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl"
+                accept=".kml, .kmz"
+                onChange={e => handleFileChange(e)}
+              />
+              <p className="mx-1 flex gap-1 text-stone-500 text-xs">
+                <span aria-hidden="true">*</span> Apenas arquivos .KML e .KMZ
+                são permitidos. (opcional)
+              </p>
+            </motion.div>
+            <motion.button
+              type="submit"
+              className="btn btn-primary mt-8 w-full"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              variants={itemVariants}
+              disabled={isPhoneInvalid || isSending || isSent}
+            >
+              {isSending ? <Spinner /> : 'Enviar'}
+            </motion.button>
 
-            {hasError && (
-              <motion.p
-                className="flex gap-1 text-pretty rounded-md border border-red-600 bg-red-50 px-4 py-3 text-red-600 text-sm leading-tight md:rounded-xl"
-                variants={feedbackVariants}
-              >
-                <span aria-hidden="true">⛔</span>
-                <span>
-                  <b>Erro no servidor.</b>
-                  <br />
-                  Tente novamente mais tarde.
-                </span>
-                <button
-                  type="button"
-                  className="ml-auto"
-                  onClick={() => setHasError(false)}
+            <AnimatePresence>
+              {isSent && (
+                <motion.p
+                  className="mt-4 flex gap-1 text-pretty rounded-md border border-green-600 bg-green-50 px-4 py-3 text-green-600 text-sm leading-tight md:rounded-xl"
+                  variants={feedbackVariants}
                 >
-                  ✖︎
-                </button>
-              </motion.p>
-            )}
-          </AnimatePresence>
+                  <span aria-hidden="true">✅</span>
+                  <span>
+                    <b>Dados enviados!</b>
+                    <br /> Aguarde que em breve entraremos em contato.
+                  </span>
+                  <button
+                    type="button"
+                    className="ml-auto"
+                    onClick={() => resetForm()}
+                  >
+                    ✖︎
+                  </button>
+                </motion.p>
+              )}
+
+              {hasError && (
+                <motion.p
+                  className="flex gap-1 text-pretty rounded-md border border-red-600 bg-red-50 px-4 py-3 text-red-600 text-sm leading-tight md:rounded-xl"
+                  variants={feedbackVariants}
+                >
+                  <span aria-hidden="true">⛔</span>
+                  <span>
+                    <b>Erro no servidor.</b>
+                    <br />
+                    Tente novamente mais tarde.
+                  </span>
+                  <button
+                    type="button"
+                    className="ml-auto"
+                    onClick={() => setHasError(false)}
+                  >
+                    ✖︎
+                  </button>
+                </motion.p>
+              )}
+            </AnimatePresence>
+          </fieldset>
         </form>
       </motion.div>
 

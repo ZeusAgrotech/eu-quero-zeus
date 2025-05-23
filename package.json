@@ -14,7 +14,6 @@
     "next": "15.3.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-range": "^1.10.0",
     "resend": "^4.5.1"
   },
   "devDependencies": {
