@@ -27,18 +27,79 @@ export async function POST(request: Request) {
       to: 'delivered@resend.dev', // 'edsonsjr+euquerozeus@gmail.com',
       subject: '[campanha] Eu quero Zeus',
       html: `
-        <p>
-          <b>Nome:</b> ${name}
-        </p>
-        <p>
-          <b>Celular:</b> <a href="https://wa.me/55${phone.replace(/\D/g, '')}" style="color:#ff7f2f">${phone}</a>
-        </p>
-        <p>
-          <b>Área:</b> ${area} ha
-        </p>
-        <p>
-          <b>Cultura:</b> ${finalCrop}
-        </p>
+        <table cellpadding="2" cellspacing="0" border="0">
+          <tr>
+            <td>
+              <b style="font-size:14px;font-family:sans-serif;">
+                Nome:
+              </b>
+            </td>
+            <td>
+              <span style="font-size:14px;font-family:sans-serif;">
+                ${name}
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <b style="font-size:14px;font-family:sans-serif;">
+                Celular / WhatsApp:
+              </b>
+            </td>
+            <td>
+              <span style="font-size:14px;font-family:sans-serif;">
+                <a href="https://wa.me/55${phone.replace(/\D/g, '')}" style="color:#ff7f2f">
+                  ${phone}
+                </a>
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <b style="font-size:14px;font-family:sans-serif;">
+                Área de plantio:
+              </b>
+            </td>
+            <td>
+              <span style="font-size:14px;font-family:sans-serif;">
+                ${area}
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <b style="font-size:14px;font-family:sans-serif;">
+                Cultura:
+              </b>
+            </td>
+            <td>
+              <span style="font-size:14px;font-family:sans-serif;">
+                ${finalCrop}
+              </span>
+            </td>
+          </tr>
+          ${
+            file &&
+            `<tr>
+              <td>
+                <b style="font-size:14px;font-family:sans-serif;">
+                  Anexo:
+                </b>
+              </td>
+              <td>
+                <span style="font-size:14px;font-family:sans-serif;">
+                  ${
+                    typeof file === 'object' && 'filename' in file
+                      ? file.filename
+                      : file instanceof File
+                        ? file.name
+                        : ''
+                  }
+                </span>
+              </td>
+            </tr>`
+          }
+        </table>
       `,
       attachments,
     })

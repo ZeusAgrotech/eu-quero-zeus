@@ -194,7 +194,7 @@ export default function Home() {
 
   return (
     <motion.div
-      className="isolate flex min-h-screen select-none flex-col items-center justify-between gap-6 p-6 lg:px-16"
+      className="isolate flex min-h-screen select-none flex-col items-center justify-between gap-6 bg-gradient-to-br from-zeus-300 to-zeus-500 p-6 lg:px-16 dark:from-zeus-800 dark:to-zeus-950 dark:text-white"
       initial="hidden"
       animate="visible"
       viewport={{ once: true }}
@@ -207,7 +207,7 @@ export default function Home() {
       </motion.h1>
 
       <motion.div
-        className="flex w-full max-w-md flex-col items-center gap-4 rounded-2xl bg-gradient-to-br from-stone-50 to-stone-100 p-4 shadow-[0_2px_4px_rgba(0,0,0,0.3)] md:rounded-4xl md:p-6"
+        className="dark flex w-full max-w-md flex-col items-center gap-4 rounded-2xl bg-gradient-to-br from-stone-50 to-stone-100 p-4 shadow-[0_2px_4px_rgba(0,0,0,0.3)] md:rounded-4xl md:p-6 dark:from-stone-700 dark:to-stone-900"
         variants={containerVariants}
       >
         <motion.figure className="mb-2 w-full" variants={itemVariants}>
@@ -216,7 +216,15 @@ export default function Home() {
             alt="Logo do Zeus"
             width={512}
             height={150}
-            className="w-48 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]"
+            className="w-48 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)] dark:hidden"
+            role="presentation"
+          />
+          <Image
+            src="/assets/images/logo-zeus-gradient-dark.svg"
+            alt="Logo do Zeus"
+            width={512}
+            height={150}
+            className="hidden w-48 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)] dark:block"
             role="presentation"
           />
         </motion.figure>
@@ -231,7 +239,7 @@ export default function Home() {
                 type="text"
                 id="name"
                 name="name"
-                className="rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-700 focus:outline-zeus-400 md:rounded-xl"
+                className="form-control"
                 placeholder="Digite seu nome"
                 autoCapitalize="words"
                 value={formData.name}
@@ -253,9 +261,9 @@ export default function Home() {
                 placeholder="(__) _____-____"
                 className={`rounded-md border ${
                   isPhoneInvalid
-                    ? '!bg-red-50 animate-wobble border-red-600 border-dashed text-red-600 focus:outline-red-600'
-                    : 'border-stone-300 focus:outline-zeus-400'
-                } bg-white px-3 py-2 md:rounded-xl`}
+                    ? 'animate-wobble border-red-600 border-dashed bg-red-50 bg-clip-padding text-red-600 focus:outline-red-600 dark:bg-red-800 dark:text-red-100'
+                    : 'border-stone-300 bg-white focus:outline-zeus-400 dark:border-stone-600 dark:bg-stone-700'
+                } px-3 py-2 focus:outline-2 md:rounded-xl`}
                 value={formData.phone}
                 maxLength={15}
                 onChange={handlePhoneChange}
@@ -263,7 +271,10 @@ export default function Home() {
                 required
               />
               {isPhoneInvalid && (
-                <span className="absolute right-3 bottom-2.5 animate-wobble">
+                <span
+                  className="absolute right-3 bottom-2.5 animate-wobble"
+                  aria-hidden="true"
+                >
                   🚫
                 </span>
               )}
@@ -281,7 +292,7 @@ export default function Home() {
                   name="crop"
                   value={formData.crop}
                   onChange={handleFormChange}
-                  className="rounded-md border border-stone-300 bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl"
+                  className="form-control"
                   required
                 >
                   <option value="">Selecione</option>
@@ -315,15 +326,16 @@ export default function Home() {
                     type="number"
                     id="area"
                     name="area"
-                    className="w-[calc(100%_-_2rem)] rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-700 focus:outline-zeus-400 md:rounded-xl"
+                    className="form-control w-[calc(100%_-_2rem)]"
                     placeholder="1000"
                     min={100}
                     max={1000000}
                     value={formData.area}
+                    onClick={e => e.currentTarget.select()}
                     onChange={e => handleFormChange(e)}
                     required
                   />
-                  <span>ha</span>
+                  ha
                 </div>
               </motion.div>
             </div>
@@ -340,7 +352,7 @@ export default function Home() {
                     otherCrop: e.target.value,
                   }))
                 }
-                className="w-full rounded-md border border-stone-300 bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl"
+                className="form-control"
                 // biome-ignore lint/a11y/noAutofocus: <explanation>
                 autoFocus={true}
                 required
@@ -349,10 +361,10 @@ export default function Home() {
             <motion.div className="flex flex-col gap-2" variants={itemVariants}>
               <div className="mx-1 flex items-center gap-3">
                 <label htmlFor="file">Anexar arquivo*:</label>
-                <div className="group relative flex h-5 w-5 cursor-help items-center justify-center rounded-full bg-stone-300 text-xs">
+                <div className="group relative flex h-5 w-5 cursor-help items-center justify-center rounded-full bg-stone-300 text-xs dark:bg-stone-600">
                   <b aria-label="help">?</b>
                   <span
-                    className="-translate-x-1/2 pointer-events-none absolute bottom-full left-1/2 mb-2 w-50 text-pretty rounded-xl border border-stone-300 bg-white p-2 text-center opacity-0 shadow-md transition-opacity duration-300 group-hover:opacity-100"
+                    className="-translate-x-1/2 pointer-events-none absolute bottom-full left-1/2 mb-2 w-50 text-pretty rounded-xl border border-stone-300 bg-white p-2 text-center opacity-0 shadow-md transition-opacity duration-300 group-hover:opacity-100 dark:border-stone-700 dark:bg-stone-800"
                     aria-labelledby="help"
                   >
                     Envie arquivo KML ou KMZ contendo suas áreas de plantio
@@ -365,11 +377,11 @@ export default function Home() {
                 type="file"
                 id="file"
                 name="file"
-                className="w-full rounded-md border border-stone-300 bg-white px-3 py-2 focus:outline-zeus-400 md:rounded-xl"
+                className="form-control"
                 accept=".kml, .kmz"
                 onChange={e => handleFileChange(e)}
               />
-              <p className="mx-1 flex gap-1 text-stone-500 text-xs">
+              <p className="mx-1 flex gap-1 text-xs opacity-50">
                 <span aria-hidden="true">*</span> Apenas arquivos .KML e .KMZ
                 são permitidos. (opcional)
               </p>
@@ -388,7 +400,7 @@ export default function Home() {
             <AnimatePresence>
               {isSent && (
                 <motion.p
-                  className="mt-4 flex gap-1 text-pretty rounded-md border border-green-600 bg-green-50 px-4 py-3 text-green-600 text-sm leading-tight md:rounded-xl"
+                  className="mt-4 flex gap-1 text-pretty rounded-md border border-green-600 bg-green-50 px-4 py-3 text-green-600 text-sm leading-tight md:rounded-xl dark:border-green-700 dark:bg-green-800 dark:text-green-100"
                   variants={feedbackVariants}
                 >
                   <span aria-hidden="true">✅</span>
@@ -408,7 +420,7 @@ export default function Home() {
 
               {hasError && (
                 <motion.p
-                  className="flex gap-1 text-pretty rounded-md border border-red-600 bg-red-50 px-4 py-3 text-red-600 text-sm leading-tight md:rounded-xl"
+                  className="flex gap-1 text-pretty rounded-md border border-red-600 bg-red-50 px-4 py-3 text-red-600 text-sm leading-tight md:rounded-xl dark:border-red-700 dark:bg-red-800 dark:text-red-100"
                   variants={feedbackVariants}
                 >
                   <span aria-hidden="true">⛔</span>
@@ -432,11 +444,11 @@ export default function Home() {
       </motion.div>
 
       <motion.p
-        className="text-pretty text-center text-black/70 text-sm"
+        className="text-pretty text-center text-sm"
         variants={{
           hidden: { opacity: 0, y: 24, filter: 'blur(8px)' },
           visible: {
-            opacity: 1,
+            opacity: 0.5,
             y: 0,
             filter: 'blur(0px)',
             transition: { delay: 0.5, duration: 1, ease: 'easeOut' },
@@ -446,15 +458,15 @@ export default function Home() {
         &copy; ZEUSAGRO TECNOLOGIA E SERVIÇOS AGRÍCOLAS S/A,{' '}
         {new Date().getFullYear()}.
         <br />
-        CNPJ: 24.915.907/0001-49
+        CNPJ: <span className="text-nowrap">24.915.907/0001-49</span>
       </motion.p>
 
       <div
-        className="-z-[1] fixed inset-0 bg-[length:100_100] bg-[url(/assets/images/bg-noise.png)] mix-blend-overlay"
+        className="-z-[1] fixed inset-0 bg-[length:100_100] bg-[url(/assets/images/bg-noise.png)] dark:mix-blend-multiply"
         aria-hidden="true"
       />
       <div
-        className="-z-[2] fixed inset-0 bg-gradient-to-br from-zeus-300 to-zeus-500"
+        className="-z-[2] fixed inset-0 dark:bg-black/70"
         aria-hidden="true"
       />
     </motion.div>
