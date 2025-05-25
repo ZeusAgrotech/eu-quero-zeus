@@ -49,6 +49,7 @@ export default function Home() {
   const [formData, setFormData] = useState<FormData>(initialFormData)
   const [isPhoneInvalid, setIsPhoneInvalid] = useState(false)
   const [showOtherCrop, setShowOtherCrop] = useState(false)
+  const [showFileInput, setShowFileInput] = useState(false)
   const [isSending, setIsSending] = useState(false)
   const [isSent, setIsSent] = useState(false)
   const [hasError, setHasError] = useState(false)
@@ -207,8 +208,9 @@ export default function Home() {
       </motion.h1>
 
       <motion.div
-        className="dark flex w-full max-w-md flex-col items-center gap-4 rounded-2xl bg-gradient-to-br from-stone-50 to-stone-100 p-4 shadow-[0_2px_4px_rgba(0,0,0,0.3)] md:rounded-4xl md:p-6 dark:from-stone-700 dark:to-stone-900"
+        className="flex w-full max-w-md flex-col items-center gap-4 rounded-2xl bg-gradient-to-br from-stone-50 to-stone-100 p-4 shadow-[0_2px_4px_rgba(0,0,0,0.3)] md:rounded-4xl md:p-6 dark:from-stone-700 dark:to-stone-900"
         variants={containerVariants}
+        layout
       >
         <motion.figure className="mb-2 w-full" variants={itemVariants}>
           <Image
@@ -232,7 +234,7 @@ export default function Home() {
         <form onSubmit={handleSubmit} className="w-full">
           <fieldset disabled={isSending || isSent} className="w-full space-y-4">
             <motion.div className="flex flex-col gap-2" variants={itemVariants}>
-              <label htmlFor="name" className="mx-1">
+              <label htmlFor="name" className="mx-1 w-fit">
                 Como gostaria de ser chamado?
               </label>
               <input
@@ -251,7 +253,7 @@ export default function Home() {
               className="relative flex flex-col gap-2"
               variants={itemVariants}
             >
-              <label htmlFor="phone" className="mx-1">
+              <label htmlFor="phone" className="mx-1 w-fit">
                 Celular / WhatsApp:
               </label>
               <input
@@ -284,7 +286,7 @@ export default function Home() {
                 className="flex w-1/2 flex-col gap-2"
                 variants={itemVariants}
               >
-                <label htmlFor="crop" className="mx-1">
+                <label htmlFor="crop" className="mx-1 w-fit">
                   Cultura:
                 </label>
                 <select
@@ -318,7 +320,7 @@ export default function Home() {
                 className="flex w-1/2 flex-col gap-2"
                 variants={itemVariants}
               >
-                <label htmlFor="area" className="mx-1">
+                <label htmlFor="area" className="mx-1 w-fit">
                   Área plantio:
                 </label>
                 <div className="flex items-center gap-2">
@@ -358,34 +360,55 @@ export default function Home() {
                 required
               />
             )}
-            <motion.div className="flex flex-col gap-2" variants={itemVariants}>
-              <div className="mx-1 flex items-center gap-3">
-                <label htmlFor="file">Anexar arquivo*:</label>
-                <div className="group relative flex h-5 w-5 cursor-help items-center justify-center rounded-full bg-stone-300 text-xs dark:bg-stone-600">
-                  <b aria-label="help">?</b>
-                  <span
-                    className="-translate-x-1/2 pointer-events-none absolute bottom-full left-1/2 mb-2 w-50 text-pretty rounded-xl border border-stone-300 bg-white p-2 text-center opacity-0 shadow-md transition-opacity duration-300 group-hover:opacity-100 dark:border-stone-700 dark:bg-stone-800"
-                    aria-labelledby="help"
-                  >
-                    Envie arquivo KML ou KMZ contendo suas áreas de plantio
-                    <br />
-                    (opcional)
-                  </span>
-                </div>
+            <motion.div
+              className="flex items-center gap-2"
+              variants={itemVariants}
+            >
+              <button
+                type="button"
+                className="rounded-md p-1 focus:outline-2 focus:outline-zeus-400 md:rounded-xl"
+                onClick={e => {
+                  setShowFileInput(!showFileInput)
+                  e.currentTarget.blur()
+                }}
+              >
+                Anexar arquivo?
+              </button>
+              <div className="group relative flex h-5 w-5 cursor-help items-center justify-center rounded-full bg-stone-300 text-xs dark:bg-stone-600">
+                <b aria-label="help">?</b>
+                <span
+                  className="-translate-x-1/2 pointer-events-none absolute bottom-full left-1/2 mb-2 w-50 text-pretty rounded-xl border border-stone-300 bg-white p-2 text-center opacity-0 shadow-md transition-opacity duration-300 group-hover:opacity-100 dark:border-stone-700 dark:bg-stone-800"
+                  aria-labelledby="help"
+                >
+                  Envie arquivo KML ou KMZ contendo suas áreas de plantio
+                  <br />
+                  (opcional)
+                </span>
               </div>
-              <input
-                type="file"
-                id="file"
-                name="file"
-                className="form-control"
-                accept=".kml, .kmz"
-                onChange={e => handleFileChange(e)}
-              />
-              <p className="mx-1 flex gap-1 text-xs opacity-50">
-                <span aria-hidden="true">*</span> Apenas arquivos .KML e .KMZ
-                são permitidos. (opcional)
-              </p>
             </motion.div>
+            <AnimatePresence>
+              {showFileInput && (
+                <motion.div
+                  className="flex flex-col gap-2"
+                  exit={{ opacity: 0, y: -24 }}
+                  variants={itemVariants}
+                >
+                  <input
+                    type="file"
+                    id="file"
+                    name="file"
+                    className="form-control"
+                    accept=".kml, .kmz"
+                    onChange={e => handleFileChange(e)}
+                    required={showFileInput}
+                  />
+                  <p className="mx-1 flex gap-1 text-xs opacity-50">
+                    <span aria-hidden="true">*</span> Apenas arquivos .KML e
+                    .KMZ são permitidos.
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
             <motion.button
               type="submit"
               className="btn btn-primary mt-8 w-full"
@@ -396,7 +419,6 @@ export default function Home() {
             >
               {isSending ? <Spinner /> : 'Enviar'}
             </motion.button>
-
             <AnimatePresence>
               {isSent && (
                 <motion.p
