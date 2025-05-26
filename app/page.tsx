@@ -366,13 +366,17 @@ export default function Home() {
             >
               <button
                 type="button"
-                className="rounded-md p-1 focus:outline-2 focus:outline-zeus-400 md:rounded-xl"
+                className="flex flex-row-reverse items-center gap-2 rounded-md p-1 focus:outline-2 focus:outline-zeus-400 md:rounded-xl"
                 onClick={e => {
                   setShowFileInput(!showFileInput)
                   e.currentTarget.blur()
                 }}
               >
                 Anexar arquivo?
+                <span
+                  className={`h-4 w-4 rounded-sm border border-stone-300 transition-colors dark:border-stone-600 ${showFileInput ? 'bg-zeus-400' : 'bg-white dark:bg-stone-700'}`}
+                  aria-hidden="true"
+                />
               </button>
               <div className="group relative flex h-5 w-5 cursor-help items-center justify-center rounded-full bg-stone-300 text-xs dark:bg-stone-600">
                 <b aria-label="help">?</b>
