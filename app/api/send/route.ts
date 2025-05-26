@@ -23,31 +23,31 @@ export async function POST(request: Request) {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Acme <onboarding@resend.dev>', // 'Zeus Agro <noreply@zeusagro.com>',
-      to: 'delivered@resend.dev', // 'edsonsjr+euquerozeus@gmail.com',
+      from: 'noreply@zeusagro.com', // 'Acme <onboarding@resend.dev>',
+      to: 'edsonsjr@gmail.com', // 'delivered@resend.dev',
       subject: '[campanha] Eu quero Zeus',
       html: `
         <table cellpadding="2" cellspacing="0" border="0">
           <tr>
             <td>
-              <b style="font-size:14px;font-family:sans-serif;">
+              <b style="font-size:14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;">
                 Nome:
               </b>
             </td>
             <td>
-              <span style="font-size:14px;font-family:sans-serif;">
+              <span style="font-size:14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;">
                 ${name}
               </span>
             </td>
           </tr>
           <tr>
             <td>
-              <b style="font-size:14px;font-family:sans-serif;">
+              <b style="font-size:14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;">
                 Celular / WhatsApp:
               </b>
             </td>
             <td>
-              <span style="font-size:14px;font-family:sans-serif;">
+              <span style="font-size:14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;">
                 <a href="https://wa.me/55${phone.replace(/\D/g, '')}" style="color:#ff7f2f">
                   ${phone}
                 </a>
@@ -56,24 +56,24 @@ export async function POST(request: Request) {
           </tr>
           <tr>
             <td>
-              <b style="font-size:14px;font-family:sans-serif;">
+              <b style="font-size:14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;">
                 Área de plantio:
               </b>
             </td>
             <td>
-              <span style="font-size:14px;font-family:sans-serif;">
+              <span style="font-size:14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;">
                 ${area}
               </span>
             </td>
           </tr>
           <tr>
             <td>
-              <b style="font-size:14px;font-family:sans-serif;">
+              <b style="font-size:14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;">
                 Cultura:
               </b>
             </td>
             <td>
-              <span style="font-size:14px;font-family:sans-serif;">
+              <span style="font-size:14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;">
                 ${finalCrop}
               </span>
             </td>
@@ -82,12 +82,12 @@ export async function POST(request: Request) {
             file &&
             `<tr>
               <td>
-                <b style="font-size:14px;font-family:sans-serif;">
+                <b style="font-size:14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;">
                   Anexo:
                 </b>
               </td>
               <td>
-                <span style="font-size:14px;font-family:sans-serif;">
+                <span style="font-size:14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;">
                   ${
                     typeof file === 'object' && 'filename' in file
                       ? file.filename

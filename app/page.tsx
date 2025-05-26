@@ -95,6 +95,7 @@ export default function Home() {
 
     setShowOtherCrop(false)
     setIsSent(false)
+    setShowFileInput(false)
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
