@@ -1,4 +1,5 @@
 import type { FormData } from '@/types'
+import { maskNumber } from '@/utils'
 import { Resend } from 'resend'
 
 const resend = new Resend(String(process.env.NEXT_RESEND_API_KEY))
@@ -62,7 +63,7 @@ export async function POST(request: Request) {
             </td>
             <td>
               <span style="font-size:14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;">
-                ${area}
+                ${maskNumber(area)} ha
               </span>
             </td>
           </tr>
