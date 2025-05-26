@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   try {
     const { data, error } = await resend.emails.send({
       from: 'noreply@zeusagro.com', // 'Acme <onboarding@resend.dev>',
-      to: 'edsonsjr@gmail.com', // 'delivered@resend.dev',
+      to: 'marcia.medeiros@zeusagro.com', // 'delivered@resend.dev',
       subject: '[campanha] Eu quero Zeus',
       html: `
         <table cellpadding="2" cellspacing="0" border="0">
