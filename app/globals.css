@@ -57,6 +57,9 @@ button, .btn {
 
 .form-control {
   @apply w-full rounded-md border border-stone-300 bg-white px-3 py-2 focus:border-zeus-400 focus:outline-2 focus:outline-zeus-400 md:rounded-xl dark:border-stone-600 dark:bg-stone-700;
+  &:disabled {
+    @apply opacity-50;
+  }
 }
 
 .btn {
