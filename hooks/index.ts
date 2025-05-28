@@ -120,11 +120,14 @@ export default function useHome() {
         }
       }
 
-      const response = await fetch('/api/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(submissionData),
-      })
+      const response = await fetch(
+        process.env.NEXT_PUBLIC_ONRENDER_URL as string,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(submissionData),
+        }
+      )
 
       if (response.ok) {
         setIsSent(true)
