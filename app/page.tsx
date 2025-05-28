@@ -52,16 +52,16 @@ export default function Home() {
       >
         <motion.figure className="mb-2 w-full" variants={formItemVariants}>
           <Image
-            src="/assets/images/logo-zeus-gradient.svg"
-            alt="Logo do Zeus"
+            src="/euquerozeus/assets/images/logo-zeus-gradient.svg"
+            alt="Logo Zeus"
             width={512}
             height={150}
             className="w-48 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)] dark:hidden"
             role="presentation"
           />
           <Image
-            src="/assets/images/logo-zeus-gradient-dark.svg"
-            alt="Logo do Zeus"
+            src="/euquerozeus/assets/images/logo-zeus-gradient-dark.svg"
+            alt="Logo Zeus"
             width={512}
             height={150}
             className="hidden w-48 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)] dark:block"

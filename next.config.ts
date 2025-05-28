@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ['local-origin.dev', '*.local-origin.dev'],
   output: 'export',
   basePath: '/euquerozeus',
-  trailingSlash: true,
+  // trailingSlash: true,
 }
 
 export default nextConfig
