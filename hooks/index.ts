@@ -129,15 +129,15 @@ export default function useHome() {
         }
       )
 
-      if (response.ok) {
+      const responseData = await response.json()
+
+      if (response.ok && responseData.success) {
         setIsSent(true)
-        setTimeout(() => {
-          resetForm()
-        }, 4000)
+        setTimeout(() => resetForm(), 4000)
       } else {
+        console.error('Erro da API:', responseData)
         setHasError(true)
         setIsSent(false)
-        throw new Error('Erro ao enviar o formulário')
       }
     } catch (error) {
       setHasError(true)
