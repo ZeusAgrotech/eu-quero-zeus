@@ -143,7 +143,7 @@ export default function Home() {
                     <optgroup key={group} label={group}>
                       {(
                         options as Array<{
-                          value: number
+                          value: string
                           label: string | null
                         }>
                       ).map(option => (
